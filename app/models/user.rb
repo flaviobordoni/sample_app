@@ -1,17 +1,19 @@
 # == Schema Information
-# Schema version: 20110530122220
+# Schema version: 20110605111134
 #
 # Table name: users
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  email      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
+#  id                 :integer         not null, primary key
+#  name               :string(255)
+#  email              :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  password_encrypted :string(255)
 #
 
 class User < ActiveRecord::Base
-  attr_accessible :name, :email
+  attr_accessor   :password
+  attr_accessible :name, :email, :password, :password_confirmation
 
   email_regex = /\A[\w+\d\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   
@@ -21,4 +23,8 @@ class User < ActiveRecord::Base
   validates :email, :presence   => true,
                     :format     => { :with => email_regex },
                     :uniqueness => { :case_sensitive => false }
+  
+  validates :password,  :presence     => true,
+                        :confirmation => true,
+                        :length => { :within => 6..40 }
 end

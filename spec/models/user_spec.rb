@@ -3,7 +3,12 @@ require 'spec_helper'
 describe User do
 
   before(:each) do
-    @attr = {:name => "Pippo pippis", :email =>"ppippis@example.com"}
+    @attr = {
+      :name => "Pippo pippis", 
+      :email =>"ppippis@example.com", 
+      :password => "abracadabra",
+      :password_confirmation => "abracadabra"
+    }
   end
   
   it "should create a new instance given a valid attribute" do
@@ -52,5 +57,56 @@ describe User do
     User.create!(@attr)
     user_identical_email_up_to_case = User.new(@attr.merge(:name => "altro nome", :email => @attr[:email].to_s.upcase))
     user_identical_email_up_to_case.should_not be_valid    
+  end
+  
+  describe  "password" do
+    
+    before(:each) do
+      @user = User.new(@attr)
+    end
+    
+    it "should have a password attribute" do
+      @user.should respond_to(:password)
+    end
+    
+    it "should have a password confirmation attribute" do
+      @user.should respond_to(:password_confirmation)
+    end
+  end
+  
+  describe "password validations" do
+    
+    it "should require a password" do
+      User.new(@attr.merge(:password => "", :password_confirmation => "")).
+        should_not be_valid
+    end
+    
+    it "should require a matching password confirmation" do
+      User.new(@attr.merge(:password => "a", :password_confirmation => "b")).
+        should_not be_valid      
+    end
+    
+    it "should reject short passwords" do
+      short_password = "a" * 5
+      hash = @attr.merge(:password => short_password, :password_confirmation => short_password)
+      User.new(hash).should_not be_valid
+    end
+    
+    it "should reject long passwords" do
+      long_password = "a" * 41
+      hash = @attr.merge(:password => long_password, :password_confirmation => long_password)
+      User.new(hash).should_not be_valid
+    end
+  end
+  
+  describe "password encryption" do
+    
+    before(:each) do
+      @user = User.create!(@attr)
+    end
+    
+    it "should have an encrypted password attribute" do
+      @user.should respond_to(:password_encrypted)
+    end
   end
 end
