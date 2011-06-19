@@ -10,6 +10,7 @@ class UsersController < ApplicationController
     @user = User.new(params[:user])
     if @user.save
       #tratto utente salvato
+      sign_in @user
       redirect_to user_path(@user.id),
                   :flash => { :success => "Welcome to the sample app! ciao"}
     else
